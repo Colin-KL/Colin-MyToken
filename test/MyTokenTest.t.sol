@@ -111,4 +111,45 @@ contract MyTokenTest is Test {
         vm.expectRevert("Not owner");
         token.mint(notOwner, mintAmount);
     }
+
+    //测试授权余额不足转账失败
+    function test_TransferFromInsufficientAllowance() public {
+        address spender = vm.addr(7);
+        address recipient = vm.addr(8);
+        uint256 allowance = 800 * 10 ** 18;
+        uint256 amount = 1000 * 10 **18;
+        token.approve(spender, allowance);
+
+        //预期回滚
+        vm.expectRevert("Insufficient allowance");
+
+        //用spender身份调用TransferFrom
+        vm.prank(spender);
+        token.transferFrom(address(this),recipient,amount);
+    }
+
+    //测试销毁数量超出余额失败情况
+    function test_BurnInsufficientBalance() public{
+        uint256 burnAmount = token.totalSupply() + 1;
+        vm.expectRevert("Insufficient amount");
+        token.burn(burnAmount);
+    }
+
+    //测试转账余额不足失败情况
+    function test_TransferFromInsufficientBalance() public{
+        address holder = vm.addr(11);  //代币持有者
+        address recipient = vm.addr(9); //接收者
+        address spender = vm.addr(10); //被授权者
+        uint256 amount =1000 * 10 **18;
+        uint256 transferAmount = amount + 1;
+        token.transfer(holder, amount);
+        //模拟holder授权给spender
+        vm.prank(holder);
+        token.approve(spender, amount);
+        //模拟spender调用transferFrom
+        vm.prank(spender);
+        vm.expectRevert("Insufficient balance for transfer");
+        token.transferFrom(holder,spender,transferAmount);
+
+    }
 }
