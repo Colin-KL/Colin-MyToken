@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-contract MyToken {
+contract MyToken is Pausable {
     string public name;
     string public symbol;
     uint8 public decimals; //八位足够，过多会浪费存储空间，Gas费高
@@ -16,10 +16,12 @@ contract MyToken {
     event Transfer(address indexed from, address indexed to, uint256 amount);
     event Approval(address indexed owner, address indexed spender, uint256 amount);
 
+    //只有Owner才能执行
     modifier onlyOwner() {
         require(msg.sender == owner, "Not owner");
         _;
     }
+
 
     constructor() {
         name = "Colin";
@@ -74,5 +76,14 @@ contract MyToken {
         totalSupply -= amount;
         emit Transfer(msg.sender, address(0), amount);
         return true;
+    }
+
+    //包装函数：添加权限控制
+    function pause() public onlyOwner {
+        _pause();  // 调用父合约的内部函数
+    }
+    
+    function unpause() public onlyOwner {
+        _unpause();
     }
 }
