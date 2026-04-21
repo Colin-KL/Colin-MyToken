@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import {Pausable} from "./Pausable.sol";
+
 contract MyToken is Pausable {
     string public name;
     string public symbol;
