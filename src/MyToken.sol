@@ -37,7 +37,7 @@ contract MyToken is Pausable, Blacklist, ReentrancyGuard {
     }
 
     //转账（从msg.sender转向用户）
-    function transfer(address to, uint256 amount) public whenNotPaused notBlacklisted(msg.sender) nonReentrant returns (bool) {
+    function transfer(address to, uint256 amount) public virtual whenNotPaused notBlacklisted(msg.sender) nonReentrant returns (bool) {
         require(balances[msg.sender] >= amount, "Insufficient balance");
         balances[msg.sender] -= amount;
         balances[to] += amount;
@@ -47,7 +47,7 @@ contract MyToken is Pausable, Blacklist, ReentrancyGuard {
 
     //授权
     //给某个地址授权一定的额度
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(address spender, uint256 amount) public virtual returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
@@ -55,7 +55,7 @@ contract MyToken is Pausable, Blacklist, ReentrancyGuard {
 
     //授权转账(transferFrom)
     //被授权的人帮你转账
-    function transferFrom(address from, address to, uint256 amount) public whenNotPaused notBlacklisted(from) nonReentrant returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual whenNotPaused notBlacklisted(from) nonReentrant returns (bool) {
         require(balances[from] >= amount, "Insufficient balance for transfer");
         require(allowance[from][msg.sender] >= amount, "Insufficient allowance");
         balances[from] -= amount;
@@ -66,7 +66,7 @@ contract MyToken is Pausable, Blacklist, ReentrancyGuard {
     }
 
     //mint铸造
-    function mint(address to, uint256 amount) public onlyOwner whenNotPaused nonReentrant returns (bool) {
+    function mint(address to, uint256 amount) public virtual onlyOwner whenNotPaused nonReentrant returns (bool) {
         balances[to] += amount;
         totalSupply += amount;
         emit Transfer(address(0), to, amount);
@@ -74,7 +74,7 @@ contract MyToken is Pausable, Blacklist, ReentrancyGuard {
     }
 
     //burn销毁
-    function burn(uint256 amount) public whenNotPaused nonReentrant returns (bool) {
+    function burn(uint256 amount) public virtual whenNotPaused nonReentrant returns (bool) {
         require(balances[msg.sender] >= amount, "Insufficient amount");
         balances[msg.sender] -= amount;
         totalSupply -= amount;
